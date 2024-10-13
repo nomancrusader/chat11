@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Chat Room</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Chat Room</h2>
+        <div id="messages">
+            {% for message in messages %}
+                <div class="message">
+                    <strong>{{ message.user.username }}:</strong> {{ message.content }}
+                    <span class="timestamp">{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+            {% endfor %}
+        </div>
+        <input id="message" type="text" placeholder="Type your message..." autofocus>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        var socket = io();
+        
+        socket.on('message', function(data) {
+            var messages = document.getElementById('messages');
+            messages.innerHTML += '<div class="message"><strong>' + data.user + ':</strong> ' + data.msg + '</div>';
+        });
+
+        function sendMessage() {
+            var msg = document.getElementById('message').value;
+            if (msg) {
+                socket.emit('message', {'msg': msg});
+                document.getElementById('message').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
